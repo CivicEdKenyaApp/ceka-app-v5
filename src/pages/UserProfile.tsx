@@ -9,14 +9,9 @@ import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import Layout from '@/components/layout/Layout';
 import { useAuth } from '@/App';
+import { Database } from '@/integrations/supabase/types';
 
-type Profile = {
-  id: string;
-  username: string;
-  full_name: string;
-  avatar_url: string | null;
-  email: string | null;
-};
+type Profile = Database['public']['Tables']['profiles']['Row'];
 
 const UserProfile = () => {
   const { session, loading: authLoading } = useAuth();
