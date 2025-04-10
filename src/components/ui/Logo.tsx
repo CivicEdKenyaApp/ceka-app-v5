@@ -13,7 +13,7 @@ const Logo = ({ variant = 'full', className }: LogoProps) => {
     <Link to="/" className={cn("flex items-center gap-2", className)}>
       {(variant === 'full' || variant === 'icon-only') && (
         <img 
-          src="/lovable-uploads/bea0d682-b245-4391-b21b-80fdf695fdae.png" 
+          src="/lovable-uploads/60eebae9-7ca2-4cb0-823d-bcecccb0027f.png" 
           alt="CEKA Logo" 
           className="h-8 w-8"
         />
