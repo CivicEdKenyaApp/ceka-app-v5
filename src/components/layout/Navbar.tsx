@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { useIsMobile } from '@/hooks/use-mobile';
+import Logo from '@/components/ui/Logo';
 
 const Navbar = () => {
   const isMobile = useIsMobile();
@@ -22,14 +23,7 @@ const Navbar = () => {
     <header className="sticky top-0 z-50 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center justify-between">
         <div className="flex items-center gap-2">
-          <div className="flex items-center font-bold">
-            <Link to="/" className="flex items-center gap-2">
-              <span className="text-kenya-green">CEKA</span>
-              <div className="hidden sm:block text-sm font-normal text-muted-foreground">
-                <span className="font-semibold">Civic Education Kenya App</span>
-              </div>
-            </Link>
-          </div>
+          <Logo variant={isMobile ? 'icon-only' : 'full'} />
         </div>
 
         {/* Desktop Navigation */}
@@ -57,9 +51,11 @@ const Navbar = () => {
             <Bell className="h-5 w-5" />
           </Button>
 
-          <Button variant="ghost" size="icon">
-            <User className="h-5 w-5" />
-          </Button>
+          <Link to="/profile">
+            <Button variant="ghost" size="icon">
+              <User className="h-5 w-5" />
+            </Button>
+          </Link>
 
           {/* Mobile Navigation */}
           {isMobile && (
@@ -71,10 +67,7 @@ const Navbar = () => {
               </SheetTrigger>
               <SheetContent side="left">
                 <div className="flex flex-col gap-4 pt-10">
-                  <div className="flex items-center gap-2 mb-6">
-                    <span className="font-bold text-kenya-green text-xl">CEKA</span>
-                    <span className="font-medium">Civic Education Kenya</span>
-                  </div>
+                  <Logo variant="full" className="mb-6" />
                   
                   <div className="relative w-full mb-6">
                     <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />

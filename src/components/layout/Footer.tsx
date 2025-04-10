@@ -1,14 +1,14 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Mail, Phone, MapPin } from 'lucide-react';
+import Logo from '@/components/ui/Logo';
 
 const Footer = () => {
   return (
     <footer className="bg-muted py-8 mt-12">
       <div className="container grid gap-8 md:grid-cols-4">
         <div className="space-y-3">
-          <h3 className="text-lg font-bold text-kenya-green">CEKA</h3>
+          <Logo variant="full" />
           <p className="text-sm text-muted-foreground">
             Empowering Kenyan citizens with civic knowledge and tools for meaningful participation.
           </p>
