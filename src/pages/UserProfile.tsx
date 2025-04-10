@@ -71,7 +71,7 @@ const UserProfile = () => {
         .update({
           username,
           full_name: fullName,
-          updated_at: new Date(),
+          updated_at: new Date().toISOString(), // Convert Date to ISO string
         })
         .eq('id', session?.user.id);
 
