@@ -9,7 +9,367 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      bill_follows: {
+        Row: {
+          bill_id: string
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          bill_id: string
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          bill_id?: string
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bill_follows_bill_id_fkey"
+            columns: ["bill_id"]
+            isOneToOne: false
+            referencedRelation: "bills"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bill_follows_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bills: {
+        Row: {
+          category: string
+          created_at: string
+          date: string
+          id: string
+          status: string
+          summary: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          date?: string
+          id?: string
+          status: string
+          summary: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          date?: string
+          id?: string
+          status?: string
+          summary?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      discussion_replies: {
+        Row: {
+          content: string
+          created_at: string
+          discussion_id: string
+          id: string
+          likes: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          discussion_id: string
+          id?: string
+          likes?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          discussion_id?: string
+          id?: string
+          likes?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "discussion_replies_discussion_id_fkey"
+            columns: ["discussion_id"]
+            isOneToOne: false
+            referencedRelation: "discussions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "discussion_replies_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      discussions: {
+        Row: {
+          category: string
+          content: string
+          created_at: string
+          id: string
+          likes: number | null
+          replies: number | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category: string
+          content: string
+          created_at?: string
+          id?: string
+          likes?: number | null
+          replies?: number | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category?: string
+          content?: string
+          created_at?: string
+          id?: string
+          likes?: number | null
+          replies?: number | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "discussions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          email: string | null
+          full_name: string | null
+          id: string
+          updated_at: string
+          username: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id: string
+          updated_at?: string
+          username?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          updated_at?: string
+          username?: string | null
+        }
+        Relationships: []
+      }
+      resources: {
+        Row: {
+          category: string
+          created_at: string
+          description: string
+          id: string
+          is_downloadable: boolean | null
+          title: string
+          type: string
+          updated_at: string
+          url: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          description: string
+          id?: string
+          is_downloadable?: boolean | null
+          title: string
+          type: string
+          updated_at?: string
+          url: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string
+          id?: string
+          is_downloadable?: boolean | null
+          title?: string
+          type?: string
+          updated_at?: string
+          url?: string
+        }
+        Relationships: []
+      }
+      user_contributions: {
+        Row: {
+          ai_summary: string | null
+          ai_tags: string[] | null
+          category: string | null
+          content: string
+          created_at: string
+          document_url: string | null
+          id: string
+          status: string
+          title: string
+          updated_at: string
+          url: string | null
+          user_id: string | null
+        }
+        Insert: {
+          ai_summary?: string | null
+          ai_tags?: string[] | null
+          category?: string | null
+          content: string
+          created_at?: string
+          document_url?: string | null
+          id?: string
+          status?: string
+          title: string
+          updated_at?: string
+          url?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          ai_summary?: string | null
+          ai_tags?: string[] | null
+          category?: string | null
+          content?: string
+          created_at?: string
+          document_url?: string | null
+          id?: string
+          status?: string
+          title?: string
+          updated_at?: string
+          url?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_contributions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      volunteer_applications: {
+        Row: {
+          created_at: string
+          id: string
+          opportunity_id: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          opportunity_id: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          opportunity_id?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "volunteer_applications_opportunity_id_fkey"
+            columns: ["opportunity_id"]
+            isOneToOne: false
+            referencedRelation: "volunteer_opportunities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "volunteer_applications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      volunteer_opportunities: {
+        Row: {
+          commitment: string
+          created_at: string
+          date: string
+          description: string
+          id: string
+          location: string
+          organization: string
+          time: string
+          title: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          commitment: string
+          created_at?: string
+          date: string
+          description: string
+          id?: string
+          location: string
+          organization: string
+          time: string
+          title: string
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          commitment?: string
+          created_at?: string
+          date?: string
+          description?: string
+          id?: string
+          location?: string
+          organization?: string
+          time?: string
+          title?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

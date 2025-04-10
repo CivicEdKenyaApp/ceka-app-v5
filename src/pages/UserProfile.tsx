@@ -1,285 +1,189 @@
 
-import React from 'react';
-import Layout from '@/components/layout/Layout';
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/components/ui/use-toast';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
-import { Switch } from '@/components/ui/switch';
-import { 
-  Bell, 
-  User, 
-  FileText, 
-  Bookmark, 
-  MessageSquare, 
-  Flag,
-  Settings,
-  Download
-} from 'lucide-react';
+import Layout from '@/components/layout/Layout';
+import { useAuth } from '@/App';
+
+type Profile = {
+  id: string;
+  username: string;
+  full_name: string;
+  avatar_url: string | null;
+  email: string | null;
+};
 
 const UserProfile = () => {
+  const { session, loading: authLoading } = useAuth();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [updating, setUpdating] = useState(false);
+  const [username, setUsername] = useState('');
+  const [fullName, setFullName] = useState('');
+
+  useEffect(() => {
+    // Redirect if not logged in
+    if (!authLoading && !session) {
+      navigate('/auth');
+    }
+  }, [session, authLoading, navigate]);
+
+  useEffect(() => {
+    if (session) {
+      getProfile();
+    }
+  }, [session]);
+
+  const getProfile = async () => {
+    try {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', session?.user.id)
+        .single();
+
+      if (error) throw error;
+      
+      if (data) {
+        setProfile(data);
+        setUsername(data.username || '');
+        setFullName(data.full_name || '');
+      }
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Error loading profile",
+        description: error.message,
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const updateProfile = async () => {
+    try {
+      setUpdating(true);
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          username,
+          full_name: fullName,
+          updated_at: new Date(),
+        })
+        .eq('id', session?.user.id);
+
+      if (error) throw error;
+      
+      toast({
+        title: "Success!",
+        description: "Your profile has been updated.",
+      });
+      
+      getProfile();
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Error updating profile",
+        description: error.message,
+      });
+    } finally {
+      setUpdating(false);
+    }
+  };
+
+  const handleSignOut = async () => {
+    try {
+      await supabase.auth.signOut();
+      navigate('/');
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Error signing out",
+        description: error.message,
+      });
+    }
+  };
+
+  if (authLoading || loading) {
+    return (
+      <Layout>
+        <div className="container py-16 text-center">
+          Loading...
+        </div>
+      </Layout>
+    );
+  }
+
   return (
     <Layout>
-      <div className="container py-8 md:py-12">
-        <div className="flex flex-col md:flex-row gap-8 mb-8">
-          <div className="flex-shrink-0 flex flex-col items-center">
-            <Avatar className="h-28 w-28 border-4 border-background">
-              <AvatarImage src="/placeholder.svg" alt="User" />
-              <AvatarFallback>JD</AvatarFallback>
-            </Avatar>
-            <h1 className="text-2xl font-bold mt-4">John Doe</h1>
-            <p className="text-muted-foreground">Member since 2025</p>
-            <div className="flex gap-2 mt-2">
-              <Badge variant="outline">Verified</Badge>
-              <Badge className="bg-kenya-green hover:bg-kenya-green/90">Active Volunteer</Badge>
+      <div className="container max-w-xl py-16">
+        <Card>
+          <CardHeader className="text-center">
+            <div className="mx-auto mb-4">
+              <Avatar className="h-24 w-24">
+                <AvatarImage src={profile?.avatar_url || ''} alt={profile?.full_name || ''} />
+                <AvatarFallback className="text-2xl">
+                  {profile?.full_name?.charAt(0) || profile?.username?.charAt(0) || '?'}
+                </AvatarFallback>
+              </Avatar>
             </div>
-          </div>
-          
-          <div className="flex-grow">
-            <Card>
-              <CardHeader>
-                <h2 className="text-xl font-semibold">Activity Summary</h2>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
-                  <div className="p-3">
-                    <div className="text-kenya-green">
-                      <FileText className="h-6 w-6 mx-auto" />
-                    </div>
-                    <p className="text-2xl font-bold mt-2">8</p>
-                    <p className="text-sm text-muted-foreground">Bills Followed</p>
-                  </div>
-                  <div className="p-3">
-                    <div className="text-kenya-green">
-                      <Bookmark className="h-6 w-6 mx-auto" />
-                    </div>
-                    <p className="text-2xl font-bold mt-2">12</p>
-                    <p className="text-sm text-muted-foreground">Saved Resources</p>
-                  </div>
-                  <div className="p-3">
-                    <div className="text-kenya-green">
-                      <MessageSquare className="h-6 w-6 mx-auto" />
-                    </div>
-                    <p className="text-2xl font-bold mt-2">15</p>
-                    <p className="text-sm text-muted-foreground">Forum Posts</p>
-                  </div>
-                  <div className="p-3">
-                    <div className="text-kenya-green">
-                      <Flag className="h-6 w-6 mx-auto" />
-                    </div>
-                    <p className="text-2xl font-bold mt-2">3</p>
-                    <p className="text-sm text-muted-foreground">Campaigns Supported</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-        
-        <Tabs defaultValue="followed">
-          <TabsList className="mb-6">
-            <TabsTrigger value="followed" className="flex items-center gap-1">
-              <FileText className="h-4 w-4" />
-              Followed Bills
-            </TabsTrigger>
-            <TabsTrigger value="saved" className="flex items-center gap-1">
-              <Bookmark className="h-4 w-4" />
-              Saved Resources
-            </TabsTrigger>
-            <TabsTrigger value="contributions" className="flex items-center gap-1">
-              <MessageSquare className="h-4 w-4" />
-              Contributions
-            </TabsTrigger>
-            <TabsTrigger value="settings" className="flex items-center gap-1">
-              <Settings className="h-4 w-4" />
-              Settings
-            </TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="followed" className="space-y-4 mt-0">
-            <div className="grid md:grid-cols-2 gap-4">
-              <Card>
-                <CardHeader className="pb-2">
-                  <div className="flex justify-between">
-                    <Badge variant="outline">Education</Badge>
-                    <Badge>First Reading</Badge>
-                  </div>
-                  <h3 className="font-medium text-lg mt-2">Education Amendment Bill</h3>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Enhances access to quality education for all Kenyan citizens through policy reforms.
-                  </p>
-                  <Button size="sm" variant="outline">Unfollow</Button>
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardHeader className="pb-2">
-                  <div className="flex justify-between">
-                    <Badge variant="outline">Health</Badge>
-                    <Badge variant="secondary" className="text-white">Public Feedback</Badge>
-                  </div>
-                  <h3 className="font-medium text-lg mt-2">Healthcare Access Act</h3>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Aims to provide universal healthcare coverage to all Kenyans through expanded schemes.
-                  </p>
-                  <Button size="sm" variant="outline">Unfollow</Button>
-                </CardContent>
-              </Card>
+            <CardTitle className="text-2xl">Your Profile</CardTitle>
+            <CardDescription>
+              Manage your account details
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <label htmlFor="email" className="text-sm font-medium">Email</label>
+              <Input
+                id="email"
+                type="email"
+                value={profile?.email || ''}
+                disabled
+              />
             </div>
-            
-            <div className="text-center">
-              <Button variant="outline">View all followed bills</Button>
+            <div className="space-y-2">
+              <label htmlFor="username" className="text-sm font-medium">Username</label>
+              <Input
+                id="username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+              />
             </div>
-          </TabsContent>
-          
-          <TabsContent value="saved" className="space-y-4 mt-0">
-            <div className="grid md:grid-cols-3 gap-4">
-              <Card>
-                <CardHeader className="pb-2">
-                  <Badge>PDF</Badge>
-                  <h3 className="font-medium text-lg mt-2">Understanding the Constitution of Kenya</h3>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    A comprehensive guide to the Kenyan Constitution and its key provisions.
-                  </p>
-                  <div className="flex gap-2">
-                    <Button size="sm" variant="outline" className="flex-1">Unsave</Button>
-                    <Button size="sm" variant="ghost">
-                      <Download className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardHeader className="pb-2">
-                  <Badge>Video</Badge>
-                  <h3 className="font-medium text-lg mt-2">How Laws Are Made in Kenya</h3>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Visual explanation of the legislative process from bill proposal to enactment.
-                  </p>
-                  <div className="flex gap-2">
-                    <Button size="sm" variant="outline" className="flex-1">Unsave</Button>
-                    <Button size="sm" variant="ghost">
-                      <Download className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardHeader className="pb-2">
-                  <Badge>Infographic</Badge>
-                  <h3 className="font-medium text-lg mt-2">Your Rights as a Kenyan Citizen</h3>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Visual representation of fundamental rights guaranteed by the Constitution.
-                  </p>
-                  <div className="flex gap-2">
-                    <Button size="sm" variant="outline" className="flex-1">Unsave</Button>
-                    <Button size="sm" variant="ghost">
-                      <Download className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
+            <div className="space-y-2">
+              <label htmlFor="fullName" className="text-sm font-medium">Full Name</label>
+              <Input
+                id="fullName"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+              />
             </div>
-            
-            <div className="text-center">
-              <Button variant="outline">View all saved resources</Button>
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="contributions" className="space-y-4 mt-0">
-            <div className="bg-muted p-8 rounded-md text-center">
-              <MessageSquare className="h-12 w-12 mx-auto text-muted-foreground mb-3" />
-              <h3 className="font-medium">Your Contributions</h3>
-              <p className="text-sm text-muted-foreground mt-1 mb-4">View all your forum posts, comments, and legislative contributions.</p>
-              <Button>View Contributions</Button>
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="settings" className="mt-0">
-            <div className="grid md:grid-cols-2 gap-6">
-              <Card>
-                <CardHeader>
-                  <div className="flex items-center gap-2">
-                    <User className="h-5 w-5" />
-                    <h3 className="font-medium text-lg">Account Settings</h3>
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <p className="font-medium">Profile Visibility</p>
-                      <p className="text-sm text-muted-foreground">Control who can see your profile and activity</p>
-                    </div>
-                    <Switch />
-                  </div>
-                  
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <p className="font-medium">Two-Factor Authentication</p>
-                      <p className="text-sm text-muted-foreground">Add an extra layer of security to your account</p>
-                    </div>
-                    <Switch />
-                  </div>
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardHeader>
-                  <div className="flex items-center gap-2">
-                    <Bell className="h-5 w-5" />
-                    <h3 className="font-medium text-lg">Notification Preferences</h3>
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <p className="font-medium">Legislative Updates</p>
-                      <p className="text-sm text-muted-foreground">Get notified about bills you're following</p>
-                    </div>
-                    <Switch defaultChecked />
-                  </div>
-                  
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <p className="font-medium">Forum Replies</p>
-                      <p className="text-sm text-muted-foreground">Receive notifications about replies to your posts</p>
-                    </div>
-                    <Switch defaultChecked />
-                  </div>
-                  
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <p className="font-medium">Campaign Updates</p>
-                      <p className="text-sm text-muted-foreground">Get updates on campaigns you support</p>
-                    </div>
-                    <Switch defaultChecked />
-                  </div>
-                  
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <p className="font-medium">Newsletter</p>
-                      <p className="text-sm text-muted-foreground">Receive our weekly civic education newsletter</p>
-                    </div>
-                    <Switch />
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
-        </Tabs>
+          </CardContent>
+          <CardFooter className="flex flex-col space-y-4">
+            <Button 
+              onClick={updateProfile} 
+              className="w-full bg-kenya-green hover:bg-kenya-green/90" 
+              disabled={updating}
+            >
+              {updating ? "Updating..." : "Update Profile"}
+            </Button>
+            <Button 
+              onClick={handleSignOut} 
+              variant="outline" 
+              className="w-full"
+            >
+              Sign Out
+            </Button>
+          </CardFooter>
+        </Card>
       </div>
     </Layout>
   );
