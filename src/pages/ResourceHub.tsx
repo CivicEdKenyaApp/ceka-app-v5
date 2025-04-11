@@ -1,30 +1,27 @@
-
 import React, { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import { Search, Download, FileText, Video, Image, BookOpen, ArrowDown, Upload } from 'lucide-react';
+import { Search, Download, Upload, ArrowDown } from 'lucide-react';
 import ResourceCard from '@/components/resources/ResourceCard';
 import ResourceTypeFilter from '@/components/resources/ResourceTypeFilter';
-import { supabase } from '@/integrations/supabase/client';
-import { Tables } from '@/integrations/supabase/types';
 import { useToast } from '@/components/ui/use-toast';
 import { useAuth } from '@/App';
-
-type Resource = Tables<'resources'>;
 
 // Mock data for initial display
 const mockResources = [
   {
     id: "1",
     title: "Understanding the Constitution of Kenya",
-    type: "PDF",
+    type: "Constitution",
     category: "Constitution",
     description: "A comprehensive guide to the Kenyan Constitution and its key provisions.",
     url: "https://example.com/constitution-guide.pdf",
+    downloadUrl: "https://example.com/constitution-guide.pdf",
     is_downloadable: true,
+    uploadDate: new Date().toISOString(),
+    uploadedBy: "Civic Education Kenya",
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString()
   },
@@ -35,7 +32,11 @@ const mockResources = [
     category: "Governance",
     description: "Visual explanation of the legislative process from bill proposal to enactment.",
     url: "https://example.com/laws-video.mp4",
+    videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+    downloadUrl: "https://example.com/laws-video.mp4",
     is_downloadable: true,
+    uploadDate: new Date().toISOString(),
+    uploadedBy: "Civic Education Kenya",
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString()
   },
@@ -46,29 +47,38 @@ const mockResources = [
     category: "Rights",
     description: "Visual representation of fundamental rights guaranteed by the Constitution.",
     url: "https://example.com/rights-infographic.png",
+    downloadUrl: "https://example.com/rights-infographic.png",
     is_downloadable: true,
+    uploadDate: new Date().toISOString(),
+    uploadedBy: "Civic Education Kenya",
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString()
   },
   {
     id: "4",
     title: "County Governments Explained",
-    type: "PDF",
+    type: "Document",
     category: "Governance",
     description: "Detailed explanation of how county governments work and their responsibilities.",
     url: "https://example.com/county-gov.pdf",
+    downloadUrl: "https://example.com/county-gov.pdf",
     is_downloadable: true,
+    uploadDate: new Date().toISOString(),
+    uploadedBy: "Ministry of Devolution",
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString()
   },
   {
     id: "5",
     title: "Introduction to Public Participation",
-    type: "PDF",
+    type: "Document",
     category: "Participation",
     description: "Guide on how citizens can participate in governance and decision-making processes.",
     url: "https://example.com/participation.pdf",
+    downloadUrl: "https://example.com/participation.pdf",
     is_downloadable: true,
+    uploadDate: new Date().toISOString(),
+    uploadedBy: "Office of the Ombudsman",
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString()
   },
@@ -79,7 +89,11 @@ const mockResources = [
     category: "Elections",
     description: "Explains how elections work in Kenya, from voter registration to results announcement.",
     url: "https://example.com/elections-video.mp4",
+    videoUrl: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+    downloadUrl: "https://example.com/elections-video.mp4",
     is_downloadable: true,
+    uploadDate: new Date().toISOString(),
+    uploadedBy: "IEBC",
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString()
   },
@@ -90,18 +104,24 @@ const mockResources = [
     category: "Judiciary",
     description: "Visual guide to Kenya's court system and how the judiciary functions.",
     url: "https://example.com/judiciary.png",
+    downloadUrl: "https://example.com/judiciary.png",
     is_downloadable: true,
+    uploadDate: new Date().toISOString(),
+    uploadedBy: "Judicial Service Commission",
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString()
   },
   {
     id: "8",
     title: "Civic Education for Youth",
-    type: "PDF",
+    type: "Document",
     category: "Education",
     description: "Resources specifically designed for young Kenyans to learn about civic participation.",
     url: "https://example.com/youth-civic.pdf",
+    downloadUrl: "https://example.com/youth-civic.pdf",
     is_downloadable: true,
+    uploadDate: new Date().toISOString(),
+    uploadedBy: "Ministry of Education",
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString()
   },
@@ -113,7 +133,10 @@ const mockResources = [
     category: "Framework",
     description: "Official framework outlining civic education implementation at County and National levels.",
     url: "https://example.com/ncef-document.pdf",
+    downloadUrl: "https://example.com/ncef-document.pdf",
     is_downloadable: true,
+    uploadDate: new Date().toISOString(),
+    uploadedBy: "Ministry of Education",
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString()
   },
@@ -124,7 +147,10 @@ const mockResources = [
     category: "Governance",
     description: "Comprehensive document explaining Kenya's devolved system of government.",
     url: "https://example.com/devolution-guide.pdf",
+    downloadUrl: "https://example.com/devolution-guide.pdf",
     is_downloadable: true,
+    uploadDate: new Date().toISOString(),
+    uploadedBy: "Council of Governors",
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString()
   },
@@ -135,7 +161,10 @@ const mockResources = [
     category: "Participation",
     description: "A handbook for civil society organizations on effective engagement with government.",
     url: "https://example.com/cso-handbook.pdf",
+    downloadUrl: "https://example.com/cso-handbook.pdf",
     is_downloadable: true,
+    uploadDate: new Date().toISOString(),
+    uploadedBy: "Civil Society Reference Group",
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString()
   },
@@ -146,11 +175,31 @@ const mockResources = [
     category: "Finance",
     description: "Document explaining public finance management processes in Kenya.",
     url: "https://example.com/pfm-guide.pdf",
+    downloadUrl: "https://example.com/pfm-guide.pdf",
     is_downloadable: true,
+    uploadDate: new Date().toISOString(),
+    uploadedBy: "National Treasury",
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString()
   }
 ];
+
+type Resource = {
+  id: string;
+  title: string;
+  description: string;
+  type: string;
+  category: string;
+  url: string;
+  downloadUrl?: string;
+  videoUrl?: string;
+  is_downloadable: boolean;
+  uploadDate?: string;
+  uploadedBy?: string;
+  created_at: string;
+  updated_at: string;
+  status?: 'pending' | 'approved' | 'rejected';
+};
 
 const ResourceHub = () => {
   const [resources, setResources] = useState<Resource[]>([]);
@@ -162,7 +211,6 @@ const ResourceHub = () => {
   const navigate = useNavigate();
   const { session } = useAuth();
 
-  // Fetch resources from Supabase or use mock data for initial display
   useEffect(() => {
     const fetchResources = async () => {
       try {
@@ -233,8 +281,6 @@ const ResourceHub = () => {
   const filteredResources = activeCategory
     ? resources.filter(resource => resource.category === activeCategory)
     : resources;
-
-  const popularResources = resources.filter((_, index) => index < 3);
 
   const handleGoToUpload = () => {
     if (!session) {
@@ -336,7 +382,11 @@ const ResourceHub = () => {
             ))
           ) : filteredResources.length === 0 ? (
             <div className="col-span-full text-center py-12">
-              <BookOpen className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+              <div className="h-12 w-12 mx-auto text-muted-foreground mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-full w-full" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                </svg>
+              </div>
               <h2 className="text-xl font-semibold mb-2">No Resources Found</h2>
               <p className="text-muted-foreground mb-6">
                 {type 
@@ -351,12 +401,19 @@ const ResourceHub = () => {
             filteredResources.map((resource) => (
               <ResourceCard
                 key={resource.id}
-                id={resource.id}
-                title={resource.title}
-                description={resource.description}
-                type={resource.type}
-                category={resource.category}
-                downloadable={resource.is_downloadable || false}
+                resource={{
+                  id: resource.id,
+                  title: resource.title,
+                  description: resource.description,
+                  type: resource.type,
+                  uploadDate: resource.uploadDate || resource.created_at,
+                  uploadedBy: resource.uploadedBy || "Civic Education Kenya",
+                  downloadUrl: resource.downloadUrl || resource.url,
+                  videoUrl: resource.videoUrl,
+                  status: resource.status,
+                  category: resource.category
+                }}
+                downloadable={resource.is_downloadable}
               />
             ))
           )}
