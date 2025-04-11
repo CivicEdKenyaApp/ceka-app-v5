@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Mail, Phone, MapPin } from 'lucide-react';
@@ -50,10 +51,10 @@ const Footer = () => {
         <div>
           <h4 className="font-medium text-base mb-3">Resources</h4>
           <ul className="space-y-2 text-sm text-muted-foreground">
-            <li><Link to="/resources/constitution" className="hover:text-kenya-green">Constitution</Link></li>
-            <li><Link to="/resources/infographics" className="hover:text-kenya-green">Infographics</Link></li>
-            <li><Link to="/resources/videos" className="hover:text-kenya-green">Videos</Link></li>
-            <li><Link to="/resources/documents" className="hover:text-kenya-green">Documents</Link></li>
+            <li><Link to="/resources/type/constitution" className="hover:text-kenya-green">Constitution</Link></li>
+            <li><Link to="/resources/type/infographic" className="hover:text-kenya-green">Infographics</Link></li>
+            <li><Link to="/resources/type/video" className="hover:text-kenya-green">Videos</Link></li>
+            <li><Link to="/resources/type/document" className="hover:text-kenya-green">Documents</Link></li>
           </ul>
         </div>
         

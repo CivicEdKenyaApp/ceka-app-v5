@@ -5,7 +5,6 @@ import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Search, Download, FileText, Video, Image, BookOpen, ArrowDown, Upload } from 'lucide-react';
 import ResourceCard from '@/components/resources/ResourceCard';
 import ResourceTypeFilter from '@/components/resources/ResourceTypeFilter';
@@ -102,6 +101,51 @@ const mockResources = [
     category: "Education",
     description: "Resources specifically designed for young Kenyans to learn about civic participation.",
     url: "https://example.com/youth-civic.pdf",
+    is_downloadable: true,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
+  },
+  // Adding new documents for the Documents tab
+  {
+    id: "9",
+    title: "National Civic Education Framework",
+    type: "Document",
+    category: "Framework",
+    description: "Official framework outlining civic education implementation at County and National levels.",
+    url: "https://example.com/ncef-document.pdf",
+    is_downloadable: true,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
+  },
+  {
+    id: "10",
+    title: "Guide to Devolved Government",
+    type: "Document",
+    category: "Governance",
+    description: "Comprehensive document explaining Kenya's devolved system of government.",
+    url: "https://example.com/devolution-guide.pdf",
+    is_downloadable: true,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
+  },
+  {
+    id: "11",
+    title: "Civil Society Engagement Handbook",
+    type: "Document",
+    category: "Participation",
+    description: "A handbook for civil society organizations on effective engagement with government.",
+    url: "https://example.com/cso-handbook.pdf",
+    is_downloadable: true,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
+  },
+  {
+    id: "12",
+    title: "Public Finance Management Guide",
+    type: "Document",
+    category: "Finance",
+    description: "Document explaining public finance management processes in Kenya.",
+    url: "https://example.com/pfm-guide.pdf",
     is_downloadable: true,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString()
@@ -277,139 +321,55 @@ const ResourceHub = () => {
           </div>
         </div>
         
-        <Tabs defaultValue="all">
-          <TabsList className="mb-6">
-            <TabsTrigger value="all">All Resources</TabsTrigger>
-            <TabsTrigger value="documents">Documents</TabsTrigger>
-            <TabsTrigger value="videos">Videos</TabsTrigger>
-            <TabsTrigger value="infographics">Infographics</TabsTrigger>
-            <TabsTrigger value="popular">Popular</TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="all" className="mt-0">
-            {loading ? (
-              <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {[1, 2, 3, 4, 5, 6].map((n) => (
-                  <div key={n} className="animate-pulse">
-                    <div className="h-40 bg-muted rounded-t-lg"></div>
-                    <div className="p-4 space-y-2">
-                      <div className="h-4 bg-muted rounded w-1/4"></div>
-                      <div className="h-6 bg-muted rounded w-3/4"></div>
-                      <div className="h-4 bg-muted rounded w-full"></div>
-                      <div className="h-4 bg-muted rounded w-2/3"></div>
-                    </div>
-                  </div>
-                ))}
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {loading ? (
+            [1, 2, 3, 4, 5, 6].map((n) => (
+              <div key={n} className="animate-pulse">
+                <div className="h-40 bg-muted rounded-t-lg"></div>
+                <div className="p-4 space-y-2">
+                  <div className="h-4 bg-muted rounded w-1/4"></div>
+                  <div className="h-6 bg-muted rounded w-3/4"></div>
+                  <div className="h-4 bg-muted rounded w-full"></div>
+                  <div className="h-4 bg-muted rounded w-2/3"></div>
+                </div>
               </div>
-            ) : filteredResources.length === 0 ? (
-              <div className="text-center py-12">
-                <BookOpen className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                <h2 className="text-xl font-semibold mb-2">No Resources Found</h2>
-                <p className="text-muted-foreground mb-6">
-                  {type 
-                    ? `No ${type} resources are available currently.` 
-                    : "No resources match your search criteria."}
-                </p>
-                <Button asChild>
-                  <Link to="/resources">View All Resources</Link>
-                </Button>
-              </div>
-            ) : (
-              <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                {filteredResources.map((resource) => (
-                  <ResourceCard
-                    key={resource.id}
-                    id={resource.id}
-                    title={resource.title}
-                    description={resource.description}
-                    type={resource.type}
-                    category={resource.category}
-                    downloadable={resource.is_downloadable || false}
-                  />
-                ))}
-              </div>
-            )}
-            
-            {filteredResources.length > 0 && (
-              <div className="flex justify-center mt-10">
-                <Button variant="outline" className="flex items-center gap-2">
-                  Load More Resources
-                  <ArrowDown className="h-4 w-4" />
-                </Button>
-              </div>
-            )}
-          </TabsContent>
-          
-          <TabsContent value="documents">
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {filteredResources
-                .filter(resource => resource.type === "PDF")
-                .map((resource) => (
-                  <ResourceCard
-                    key={resource.id}
-                    id={resource.id}
-                    title={resource.title}
-                    description={resource.description}
-                    type={resource.type}
-                    category={resource.category}
-                    downloadable={resource.is_downloadable || false}
-                  />
-                ))}
+            ))
+          ) : filteredResources.length === 0 ? (
+            <div className="col-span-full text-center py-12">
+              <BookOpen className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+              <h2 className="text-xl font-semibold mb-2">No Resources Found</h2>
+              <p className="text-muted-foreground mb-6">
+                {type 
+                  ? `No ${type} resources are available currently.` 
+                  : "No resources match your search criteria."}
+              </p>
+              <Button asChild>
+                <Link to="/resources">View All Resources</Link>
+              </Button>
             </div>
-          </TabsContent>
-          
-          <TabsContent value="videos">
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {filteredResources
-                .filter(resource => resource.type === "Video")
-                .map((resource) => (
-                  <ResourceCard
-                    key={resource.id}
-                    id={resource.id}
-                    title={resource.title}
-                    description={resource.description}
-                    type={resource.type}
-                    category={resource.category}
-                    downloadable={resource.is_downloadable || false}
-                  />
-                ))}
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="infographics">
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {filteredResources
-                .filter(resource => resource.type === "Infographic")
-                .map((resource) => (
-                  <ResourceCard
-                    key={resource.id}
-                    id={resource.id}
-                    title={resource.title}
-                    description={resource.description}
-                    type={resource.type}
-                    category={resource.category}
-                    downloadable={resource.is_downloadable || false}
-                  />
-                ))}
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="popular">
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {popularResources.map((resource) => (
-                <ResourceCard
-                  key={resource.id}
-                  id={resource.id}
-                  title={resource.title}
-                  description={resource.description}
-                  type={resource.type}
-                  category="Popular"
-                  downloadable={resource.is_downloadable || false}
-                />
-              ))}
-            </div>
-          </TabsContent>
-        </Tabs>
+          ) : (
+            filteredResources.map((resource) => (
+              <ResourceCard
+                key={resource.id}
+                id={resource.id}
+                title={resource.title}
+                description={resource.description}
+                type={resource.type}
+                category={resource.category}
+                downloadable={resource.is_downloadable || false}
+              />
+            ))
+          )}
+        </div>
+        
+        {filteredResources.length > 0 && (
+          <div className="flex justify-center mt-10">
+            <Button variant="outline" className="flex items-center gap-2">
+              Load More Resources
+              <ArrowDown className="h-4 w-4" />
+            </Button>
+          </div>
+        )}
         
         <div className="mt-12 p-6 bg-kenya-green/10 rounded-lg">
           <div className="max-w-3xl mx-auto text-center">

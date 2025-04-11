@@ -19,6 +19,7 @@ import Volunteer from "./pages/Volunteer";
 import UserProfile from "./pages/UserProfile";
 import AuthPage from "./pages/AuthPage";
 import Notifications from "./pages/Notifications";
+import ConstitutionPage from "./pages/ConstitutionPage";
 
 // Create a query client for React Query
 const queryClient = new QueryClient();
@@ -70,6 +71,7 @@ const App = () => {
               <Route path="/resources/upload" element={<ResourceUpload />} />
               <Route path="/resources/pending" element={<PendingResources />} />
               <Route path="/resources/type/:type" element={<ResourceHub />} />
+              <Route path="/constitution" element={<ConstitutionPage />} />
               <Route path="/community" element={<CommunityPortal />} />
               <Route path="/volunteer" element={<Volunteer />} />
               <Route path="/profile" element={<UserProfile />} />
