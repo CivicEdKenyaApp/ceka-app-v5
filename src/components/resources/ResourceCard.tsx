@@ -1,88 +1,117 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { FileText, Video, Image, Download, Clock, Check } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { ExternalLink, Download, BookOpen } from 'lucide-react';
+import { formatDate } from '@/lib/utils';
 
 interface ResourceCardProps {
-  id: string;
-  title: string;
-  description: string;
-  type: string;
-  category: string;
-  icon?: React.ReactNode;
-  downloadable?: boolean;
-  status?: 'approved' | 'pending';
-  className?: string;
+  resource: {
+    id: number;
+    title: string;
+    description: string;
+    type: string;
+    uploadDate: string;
+    uploadedBy: string;
+    downloadUrl: string;
+    videoUrl?: string;
+    status?: 'pending' | 'approved' | 'rejected';
+  };
 }
 
-const ResourceCard = ({
-  id,
-  title,
-  description,
-  type,
-  category,
-  downloadable = true,
-  status = 'approved',
-  className
-}: ResourceCardProps) => {
-  
-  const getResourceIcon = () => {
-    switch (type.toLowerCase()) {
-      case 'pdf':
-        return <FileText className="h-6 w-6" />;
-      case 'video':
-        return <Video className="h-6 w-6" />;
+const ResourceCard = ({ resource }: ResourceCardProps) => {
+  const getBadgeColor = (type: string) => {
+    switch (type) {
+      case 'constitution':
+        return 'bg-kenya-red/10 text-kenya-red border-kenya-red/30';
       case 'infographic':
-        return <Image className="h-6 w-6" />;
+        return 'bg-kenya-green/10 text-kenya-green border-kenya-green/30';
+      case 'video':
+        return 'bg-kenya-blue/10 text-kenya-blue border-kenya-blue/30';
+      case 'document':
+        return 'bg-kenya-yellow/10 text-kenya-yellow border-kenya-yellow/30';
       default:
-        return <FileText className="h-6 w-6" />;
+        return 'bg-muted-foreground/10 text-muted-foreground border-muted-foreground/30';
     }
   };
 
+  const getResourceThumbnail = (resource: any) => {
+    if (resource.type === 'video' && resource.videoUrl) {
+      // Extract video ID from YouTube URL
+      const videoId = resource.videoUrl.split('v=')[1];
+      const ampersandPosition = videoId.indexOf('&');
+      const videoIdClean = ampersandPosition !== -1 ? videoId.substring(0, ampersandPosition) : videoId;
+      
+      return (
+        <iframe
+          src={`https://www.youtube.com/embed/${videoIdClean}`}
+          title="YouTube video player"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowFullScreen
+          className="absolute top-0 left-0 w-full h-full"
+        ></iframe>
+      );
+    } else {
+      return <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center text-muted-foreground">No Thumbnail</div>;
+    }
+  };
+
+  // Add special handling for constitution resources
+  const isConstitutionResource = resource.type === 'constitution';
+  
   return (
-    <Card className={cn("flex flex-col h-full group", className)}>
-      <CardHeader className="bg-muted/50 py-6 text-center">
-        <div className="mx-auto bg-white w-16 h-16 rounded-full flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform">
-          {getResourceIcon()}
+    <Card className="h-full flex flex-col">
+      <CardHeader className="pb-4">
+        <div className="flex justify-between items-start">
+          <Badge variant="outline" className={`${getBadgeColor(resource.type)} font-normal`}>
+            {resource.type}
+          </Badge>
+          {resource.status === 'pending' && (
+            <Badge variant="outline" className="bg-yellow-100 text-yellow-800 border-yellow-300">
+              Pending Approval
+            </Badge>
+          )}
+        </div>
+        <div className="mt-3">
+          <Link to={`/resources/${resource.id}`} className="hover:text-kenya-green transition-colors">
+            <h3 className="font-semibold text-lg">{resource.title}</h3>
+          </Link>
+          <p className="text-muted-foreground text-sm mt-1">{resource.description}</p>
         </div>
       </CardHeader>
-      <CardContent className="pt-6 flex-grow">
-        <div className="flex justify-between items-start mb-3">
-          <Badge>{type}</Badge>
-          {status === 'pending' && (
-            <Badge variant="outline" className="bg-amber-100 text-amber-800 border-amber-200">
-              <Clock className="h-3 w-3 mr-1" />
-              Awaiting Approval
-            </Badge>
-          )}
-          {status === 'approved' && category === 'Popular' && (
-            <Badge variant="secondary" className="bg-kenya-red/80 hover:bg-kenya-red text-white">
-              Popular
-            </Badge>
-          )}
+      <CardContent className="grow">
+        <div className="relative aspect-video bg-muted rounded-md overflow-hidden mb-4">
+          {getResourceThumbnail(resource)}
         </div>
-        <h3 className="font-semibold text-lg mb-2">{title}</h3>
-        <p className="text-muted-foreground text-sm">{description}</p>
-        {category && category !== 'Popular' && (
-          <Badge variant="outline" className="mt-3">
-            {category}
-          </Badge>
-        )}
+        <div className="mt-4 text-sm text-muted-foreground">
+          <p>Uploaded: {formatDate(resource.uploadDate)}</p>
+          <p className="mt-1">By: {resource.uploadedBy}</p>
+        </div>
       </CardContent>
-      <CardFooter className="flex justify-between items-center border-t pt-4">
-        <Button variant="outline" size="sm" className="text-xs" asChild>
-          <Link to={`/resources/${id}`}>
-            View details
+      <CardFooter className="border-t pt-4 pb-4 flex flex-col sm:flex-row gap-2 justify-between">
+        <Button variant="outline" size="sm" asChild>
+          <Link to={`/resources/${resource.id}`}>
+            <ExternalLink className="mr-1.5 h-3.5 w-3.5" />
+            View Details
           </Link>
         </Button>
-        {downloadable && status === 'approved' && (
-          <Button variant="ghost" size="icon" className="h-8 w-8">
-            <Download className="h-4 w-4" />
-            <span className="sr-only">Download {title}</span>
+        
+        {isConstitutionResource && (
+          <Button variant="outline" size="sm" asChild>
+            <Link to="/constitution">
+              <BookOpen className="mr-1.5 h-3.5 w-3.5" />
+              Constitution Guide
+            </Link>
+          </Button>
+        )}
+        
+        {!isConstitutionResource && (
+          <Button variant="outline" size="sm" asChild>
+            <a href={resource.downloadUrl} target="_blank" rel="noopener noreferrer">
+              <Download className="mr-1.5 h-3.5 w-3.5" />
+              Download
+            </a>
           </Button>
         )}
       </CardFooter>

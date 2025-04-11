@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { ArrowRight, MessageSquare, Heart, HandHelping, Search } from 'lucide-react';
+import { ArrowRight, MessageSquare, Heart, HandHelping, Search, Users, Activity, Plus } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const CommunityPortal = () => {
@@ -30,7 +30,8 @@ const CommunityPortal = () => {
       },
       comments: 15,
       likes: 32,
-      date: "2025-04-01"
+      date: "2025-04-01",
+      content: "I believe we need to focus on reaching citizens in rural areas who have limited access to information. There are many challenges including poor internet connectivity and transport infrastructure. What strategies have worked in your communities?"
     },
     {
       id: 2,
@@ -41,7 +42,8 @@ const CommunityPortal = () => {
       },
       comments: 23,
       likes: 41,
-      date: "2025-03-29"
+      date: "2025-03-29",
+      content: "The new Education Bill has several proposals that could significantly impact our school system. I've read through it and have concerns about funding allocation. Has anyone else read the full document and have thoughts to share?"
     },
     {
       id: 3,
@@ -52,7 +54,8 @@ const CommunityPortal = () => {
       },
       comments: 8,
       likes: 19,
-      date: "2025-03-27"
+      date: "2025-03-27",
+      content: "County budgets will be released next month and I'm interested in how much will be allocated to civic education projects. Last year's allocation was insufficient for meaningful impact. What should we advocate for this year?"
     },
     {
       id: 4,
@@ -63,7 +66,8 @@ const CommunityPortal = () => {
       },
       comments: 34,
       likes: 56,
-      date: "2025-03-25"
+      date: "2025-03-25",
+      content: "The new digital ID system has both benefits and drawbacks. While it can streamline government services, there are legitimate privacy concerns we should address. What safeguards should be in place to protect citizens' data?"
     }
   ];
 
@@ -75,7 +79,8 @@ const CommunityPortal = () => {
       organizer: "Digital Kenya Coalition",
       participants: 347,
       goal: "Advocate for youth-centered digital policies",
-      type: "Digital"
+      type: "Digital",
+      content: "We're bringing together young Kenyans to advocate for better digital rights policies. Our campaign focuses on online privacy, freedom of expression, and digital literacy education for all youth."
     },
     {
       id: 2,
@@ -83,7 +88,8 @@ const CommunityPortal = () => {
       organizer: "Environmental Advocates Kenya",
       participants: 215,
       goal: "Restoration of urban waterways",
-      type: "Environment"
+      type: "Environment",
+      content: "Our waterways are being polluted at an alarming rate. This campaign brings together community members to clean local rivers and advocate for stronger environmental protection policies."
     },
     {
       id: 3,
@@ -91,7 +97,8 @@ const CommunityPortal = () => {
       organizer: "Education Equality Network",
       participants: 156,
       goal: "Increase female participation in technology education",
-      type: "Education"
+      type: "Education",
+      content: "We're working to increase the number of girls pursuing STEM education through mentorship programs, educational workshops, and advocacy for inclusive STEM curriculum in schools."
     },
     {
       id: 4,
@@ -99,9 +106,17 @@ const CommunityPortal = () => {
       organizer: "Healthcare for All Kenya",
       participants: 298,
       goal: "Improve healthcare facilities in rural communities",
-      type: "Healthcare"
+      type: "Healthcare",
+      content: "Many rural communities lack access to basic healthcare. This campaign advocates for more facilities, better staffing, and improved infrastructure in underserved areas of Kenya."
     }
   ];
+
+  // Analytics data
+  const analyticsData = {
+    totalDiscussions: 1247,
+    activeUsers: 328,
+    todayActivity: 86
+  };
 
   // Handle search for discussions
   const handleDiscussionSearch = (e: React.FormEvent) => {
@@ -139,6 +154,45 @@ const CommunityPortal = () => {
           </TabsList>
           
           <TabsContent value="discussions" className="space-y-8">
+            {/* Analytics widgets */}
+            <div className="grid grid-cols-3 gap-4 mb-6">
+              <Card>
+                <CardContent className="p-4 flex items-center gap-3">
+                  <div className="bg-muted p-3 rounded-full">
+                    <MessageSquare className="h-5 w-5 text-kenya-green" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Total Discussions</p>
+                    <p className="text-2xl font-bold">{analyticsData.totalDiscussions}</p>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardContent className="p-4 flex items-center gap-3">
+                  <div className="bg-muted p-3 rounded-full">
+                    <Users className="h-5 w-5 text-kenya-green" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Community Members</p>
+                    <p className="text-2xl font-bold">{analyticsData.activeUsers}</p>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardContent className="p-4 flex items-center gap-3">
+                  <div className="bg-muted p-3 rounded-full">
+                    <Activity className="h-5 w-5 text-kenya-green" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Active Today</p>
+                    <p className="text-2xl font-bold">{analyticsData.todayActivity}</p>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+            
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
               <form onSubmit={handleDiscussionSearch} className="relative w-full md:w-1/2">
                 <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
@@ -152,46 +206,52 @@ const CommunityPortal = () => {
                   Search
                 </Button>
               </form>
-              <div className="flex flex-wrap gap-2">
-                {discussionKeywords.map((keyword) => (
-                  <Badge 
-                    key={keyword} 
-                    variant="outline" 
-                    className="cursor-pointer hover:bg-muted"
-                    onClick={() => handleKeywordClick(keyword)}
-                  >
-                    {keyword}
-                  </Badge>
-                ))}
-              </div>
+              
+              <Button className="bg-kenya-green hover:bg-kenya-green/90">
+                <Plus className="mr-2 h-4 w-4" />
+                Start a Discussion
+              </Button>
             </div>
             
-            <div className="grid md:grid-cols-2 gap-6">
+            <div className="flex flex-wrap gap-2 mb-6">
+              {discussionKeywords.map((keyword) => (
+                <Badge 
+                  key={keyword} 
+                  variant="outline" 
+                  className="cursor-pointer hover:bg-muted"
+                  onClick={() => handleKeywordClick(keyword)}
+                >
+                  {keyword}
+                </Badge>
+              ))}
+            </div>
+            
+            {/* Single column social media style feed */}
+            <div className="max-w-2xl mx-auto space-y-6">
               {discussions.map((discussion) => (
-                <Card key={discussion.id}>
-                  <CardHeader className="pb-3">
-                    <div className="flex justify-between">
-                      <div className="flex items-center gap-2">
-                        <Avatar>
-                          <AvatarFallback>{discussion.author.avatar}</AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <p className="text-sm font-medium">{discussion.author.name}</p>
-                          <p className="text-xs text-muted-foreground">
-                            {new Date(discussion.date).toLocaleDateString()}
-                          </p>
-                        </div>
+                <Card key={discussion.id} className="w-full">
+                  <CardHeader className="pb-2">
+                    <div className="flex items-center gap-3">
+                      <Avatar>
+                        <AvatarFallback>{discussion.author.avatar}</AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <p className="font-medium">{discussion.author.name}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {new Date(discussion.date).toLocaleDateString()}
+                        </p>
                       </div>
                     </div>
                   </CardHeader>
-                  <CardContent>
-                    <h3 className="text-lg font-semibold">
-                      <Link to={`/community/discussions/${discussion.id}`} className="hover:text-kenya-green transition-colors">
+                  <CardContent className="pb-2">
+                    <Link to={`/community/discussions/${discussion.id}`}>
+                      <h3 className="text-lg font-semibold mb-2 hover:text-kenya-green transition-colors">
                         {discussion.title}
-                      </Link>
-                    </h3>
+                      </h3>
+                    </Link>
+                    <p className="text-muted-foreground">{discussion.content}</p>
                   </CardContent>
-                  <CardFooter className="border-t pt-4 pb-4 flex justify-between">
+                  <CardFooter className="border-t pt-3 pb-3 flex justify-between">
                     <div className="flex items-center gap-4">
                       <div className="flex items-center gap-1">
                         <MessageSquare className="h-4 w-4 text-muted-foreground" />
@@ -213,7 +273,7 @@ const CommunityPortal = () => {
               ))}
             </div>
             
-            <div className="text-center">
+            <div className="text-center mt-8">
               <Button variant="outline">
                 Load More Discussions
               </Button>
@@ -221,6 +281,47 @@ const CommunityPortal = () => {
           </TabsContent>
           
           <TabsContent value="campaigns" className="space-y-8">
+            {/* Analytics widgets for campaigns */}
+            <div className="grid grid-cols-3 gap-4 mb-6">
+              <Card>
+                <CardContent className="p-4 flex items-center gap-3">
+                  <div className="bg-muted p-3 rounded-full">
+                    <HandHelping className="h-5 w-5 text-kenya-green" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Active Campaigns</p>
+                    <p className="text-2xl font-bold">{campaigns.length}</p>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardContent className="p-4 flex items-center gap-3">
+                  <div className="bg-muted p-3 rounded-full">
+                    <Users className="h-5 w-5 text-kenya-green" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Total Participants</p>
+                    <p className="text-2xl font-bold">
+                      {campaigns.reduce((total, campaign) => total + campaign.participants, 0)}
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardContent className="p-4 flex items-center gap-3">
+                  <div className="bg-muted p-3 rounded-full">
+                    <Activity className="h-5 w-5 text-kenya-green" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">New This Week</p>
+                    <p className="text-2xl font-bold">12</p>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+            
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
               <form onSubmit={handleCampaignSearch} className="relative w-full md:w-1/2">
                 <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
@@ -234,23 +335,30 @@ const CommunityPortal = () => {
                   Search
                 </Button>
               </form>
-              <div className="flex flex-wrap gap-2">
-                {campaignKeywords.map((keyword) => (
-                  <Badge 
-                    key={keyword} 
-                    variant="outline" 
-                    className="cursor-pointer hover:bg-muted"
-                    onClick={() => handleKeywordClick(keyword)}
-                  >
-                    {keyword}
-                  </Badge>
-                ))}
-              </div>
+              
+              <Button className="bg-kenya-green hover:bg-kenya-green/90">
+                <Plus className="mr-2 h-4 w-4" />
+                Start a Campaign
+              </Button>
             </div>
             
-            <div className="grid md:grid-cols-2 gap-6">
+            <div className="flex flex-wrap gap-2 mb-6">
+              {campaignKeywords.map((keyword) => (
+                <Badge 
+                  key={keyword} 
+                  variant="outline" 
+                  className="cursor-pointer hover:bg-muted"
+                  onClick={() => handleKeywordClick(keyword)}
+                >
+                  {keyword}
+                </Badge>
+              ))}
+            </div>
+            
+            {/* Single column social media style feed for campaigns */}
+            <div className="max-w-2xl mx-auto space-y-6">
               {campaigns.map((campaign) => (
-                <Card key={campaign.id}>
+                <Card key={campaign.id} className="w-full">
                   <CardHeader>
                     <Badge className="w-fit mb-2">{campaign.type}</Badge>
                     <h3 className="text-lg font-semibold">
@@ -261,6 +369,7 @@ const CommunityPortal = () => {
                     <p className="text-sm text-muted-foreground">Organized by: {campaign.organizer}</p>
                   </CardHeader>
                   <CardContent>
+                    <p className="text-muted-foreground mb-4">{campaign.content}</p>
                     <p className="text-sm mb-4">Goal: {campaign.goal}</p>
                     <div className="flex items-center gap-1.5">
                       <HandHelping className="h-4 w-4 text-kenya-green" />
@@ -278,7 +387,7 @@ const CommunityPortal = () => {
               ))}
             </div>
             
-            <div className="text-center">
+            <div className="text-center mt-8">
               <Button variant="outline">
                 Load More Campaigns
               </Button>
