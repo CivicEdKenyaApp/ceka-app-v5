@@ -18,6 +18,7 @@ import CommunityPortal from "./pages/CommunityPortal";
 import Volunteer from "./pages/Volunteer";
 import UserProfile from "./pages/UserProfile";
 import AuthPage from "./pages/AuthPage";
+import Notifications from "./pages/Notifications";
 
 // Create a query client for React Query
 const queryClient = new QueryClient();
@@ -73,6 +74,7 @@ const App = () => {
               <Route path="/volunteer" element={<Volunteer />} />
               <Route path="/profile" element={<UserProfile />} />
               <Route path="/auth" element={<AuthPage />} />
+              <Route path="/notifications" element={<Notifications />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>

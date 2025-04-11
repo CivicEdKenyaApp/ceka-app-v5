@@ -18,19 +18,19 @@ const resourceTypes = [
     icon: <Book className="h-4 w-4" /> 
   },
   { 
-    id: 'documents', 
+    id: 'document', 
     name: 'Documents', 
     path: '/resources/type/document',
     icon: <FileText className="h-4 w-4" /> 
   },
   { 
-    id: 'videos', 
+    id: 'video', 
     name: 'Videos', 
     path: '/resources/type/video',
     icon: <Video className="h-4 w-4" /> 
   },
   { 
-    id: 'infographics', 
+    id: 'infographic', 
     name: 'Infographics', 
     path: '/resources/type/infographic',
     icon: <Image className="h-4 w-4" /> 
@@ -46,7 +46,7 @@ const ResourceTypeFilter = () => {
         {resourceTypes.map((type) => {
           const isActive = 
             (type.id === 'all' && location.pathname === '/resources') ||
-            (type.id !== 'all' && location.pathname.includes(type.id));
+            (type.id !== 'all' && location.pathname.includes(`/type/${type.id}`));
             
           return (
             <Link

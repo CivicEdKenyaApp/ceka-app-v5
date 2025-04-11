@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, Search, Bell, User, Upload, BookOpen } from 'lucide-react';
+import { Menu, Search, Bell, User, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
@@ -75,25 +75,10 @@ const Navbar = () => {
             </TooltipProvider>
           )}
           
-          {isResourcesSection && !isMobile && (
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button variant="ghost" size="icon" asChild>
-                    <Link to="/resources">
-                      <BookOpen className="h-5 w-5" />
-                    </Link>
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  Browse Resources
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          )}
-          
-          <Button variant="ghost" size="icon">
-            <Bell className="h-5 w-5" />
+          <Button variant="ghost" size="icon" asChild>
+            <Link to="/notifications">
+              <Bell className="h-5 w-5" />
+            </Link>
           </Button>
 
           <Link to={session ? "/profile" : "/auth"}>
@@ -142,9 +127,9 @@ const Navbar = () => {
                         <Upload className="h-4 w-4 mr-2" />
                         Upload Resource
                       </Link>
-                      <Link to="/resources/pending" className="py-2 pl-2 text-foreground/60 hover:text-foreground transition-colors flex items-center">
+                      <Link to="/notifications" className="py-2 pl-2 text-foreground/60 hover:text-foreground transition-colors flex items-center">
                         <Bell className="h-4 w-4 mr-2" />
-                        My Submissions
+                        Notifications
                       </Link>
                     </>
                   )}
