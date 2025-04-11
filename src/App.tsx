@@ -11,6 +11,9 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import LegislativeTracker from "./pages/LegislativeTracker";
 import ResourceHub from "./pages/ResourceHub";
+import ResourceDetail from "./pages/ResourceDetail";
+import ResourceUpload from "./pages/ResourceUpload";
+import PendingResources from "./pages/PendingResources";
 import CommunityPortal from "./pages/CommunityPortal";
 import Volunteer from "./pages/Volunteer";
 import UserProfile from "./pages/UserProfile";
@@ -62,6 +65,10 @@ const App = () => {
               <Route path="/" element={<Index />} />
               <Route path="/legislative-tracker" element={<LegislativeTracker />} />
               <Route path="/resources" element={<ResourceHub />} />
+              <Route path="/resources/:id" element={<ResourceDetail />} />
+              <Route path="/resources/upload" element={<ResourceUpload />} />
+              <Route path="/resources/pending" element={<PendingResources />} />
+              <Route path="/resources/type/:type" element={<ResourceHub />} />
               <Route path="/community" element={<CommunityPortal />} />
               <Route path="/volunteer" element={<Volunteer />} />
               <Route path="/profile" element={<UserProfile />} />

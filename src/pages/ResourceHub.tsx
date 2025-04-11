@@ -1,99 +1,209 @@
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Link } from 'react-router-dom';
-import { Search, Download, FileText, Video, Image, BookOpen, ArrowDown } from 'lucide-react';
+import { Search, Download, FileText, Video, Image, BookOpen, ArrowDown, Upload } from 'lucide-react';
+import ResourceCard from '@/components/resources/ResourceCard';
+import ResourceTypeFilter from '@/components/resources/ResourceTypeFilter';
+import { supabase } from '@/integrations/supabase/client';
+import { Tables } from '@/integrations/supabase/types';
+import { useToast } from '@/components/ui/use-toast';
+import { useAuth } from '@/App';
 
-// Mock data for resources
-const resources = [
+type Resource = Tables<'resources'>;
+
+// Mock data for initial display
+const mockResources = [
   {
-    id: 1,
+    id: "1",
     title: "Understanding the Constitution of Kenya",
     type: "PDF",
     category: "Constitution",
     description: "A comprehensive guide to the Kenyan Constitution and its key provisions.",
-    icon: <FileText className="h-6 w-6" />,
-    downloadable: true,
-    popular: true
+    url: "https://example.com/constitution-guide.pdf",
+    is_downloadable: true,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
   },
   {
-    id: 2,
+    id: "2",
     title: "How Laws Are Made in Kenya",
     type: "Video",
     category: "Governance",
     description: "Visual explanation of the legislative process from bill proposal to enactment.",
-    icon: <Video className="h-6 w-6" />,
-    downloadable: true,
-    popular: true
+    url: "https://example.com/laws-video.mp4",
+    is_downloadable: true,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
   },
   {
-    id: 3,
+    id: "3",
     title: "Your Rights as a Kenyan Citizen",
     type: "Infographic",
     category: "Rights",
     description: "Visual representation of fundamental rights guaranteed by the Constitution.",
-    icon: <Image className="h-6 w-6" />,
-    downloadable: true,
-    popular: false
+    url: "https://example.com/rights-infographic.png",
+    is_downloadable: true,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
   },
   {
-    id: 4,
+    id: "4",
     title: "County Governments Explained",
     type: "PDF",
     category: "Governance",
     description: "Detailed explanation of how county governments work and their responsibilities.",
-    icon: <FileText className="h-6 w-6" />,
-    downloadable: true,
-    popular: false
+    url: "https://example.com/county-gov.pdf",
+    is_downloadable: true,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
   },
   {
-    id: 5,
+    id: "5",
     title: "Introduction to Public Participation",
     type: "PDF",
     category: "Participation",
     description: "Guide on how citizens can participate in governance and decision-making processes.",
-    icon: <FileText className="h-6 w-6" />,
-    downloadable: true,
-    popular: true
+    url: "https://example.com/participation.pdf",
+    is_downloadable: true,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
   },
   {
-    id: 6,
+    id: "6",
     title: "Kenya's Electoral System",
     type: "Video",
     category: "Elections",
     description: "Explains how elections work in Kenya, from voter registration to results announcement.",
-    icon: <Video className="h-6 w-6" />,
-    downloadable: true,
-    popular: false
+    url: "https://example.com/elections-video.mp4",
+    is_downloadable: true,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
   },
   {
-    id: 7,
+    id: "7",
     title: "Understanding the Judiciary",
     type: "Infographic",
     category: "Judiciary",
     description: "Visual guide to Kenya's court system and how the judiciary functions.",
-    icon: <Image className="h-6 w-6" />,
-    downloadable: true,
-    popular: false
+    url: "https://example.com/judiciary.png",
+    is_downloadable: true,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
   },
   {
-    id: 8,
+    id: "8",
     title: "Civic Education for Youth",
     type: "PDF",
     category: "Education",
     description: "Resources specifically designed for young Kenyans to learn about civic participation.",
-    icon: <FileText className="h-6 w-6" />,
-    downloadable: true,
-    popular: false
+    url: "https://example.com/youth-civic.pdf",
+    is_downloadable: true,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
   }
 ];
 
 const ResourceHub = () => {
+  const [resources, setResources] = useState<Resource[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [activeCategory, setActiveCategory] = useState<string | null>(null);
+  const { type } = useParams();
+  const { toast } = useToast();
+  const navigate = useNavigate();
+  const { session } = useAuth();
+
+  // Fetch resources from Supabase or use mock data for initial display
+  useEffect(() => {
+    const fetchResources = async () => {
+      try {
+        // In a real implementation, this would fetch from Supabase
+        // For now, we'll just use the mock data after a brief delay
+        setTimeout(() => {
+          // Filter by type if specified in URL
+          let filteredResources = [...mockResources];
+          
+          if (type) {
+            filteredResources = mockResources.filter(resource => 
+              resource.type.toLowerCase() === type.toLowerCase() ||
+              resource.category.toLowerCase() === type.toLowerCase()
+            );
+          }
+          
+          setResources(filteredResources as Resource[]);
+          setLoading(false);
+        }, 500);
+        
+        // Actual Supabase implementation would look like this:
+        /*
+        let query = supabase
+          .from('resources')
+          .select('*')
+          .eq('status', 'approved');
+          
+        if (type) {
+          query = query.eq('type', type);
+        }
+        
+        const { data, error } = await query;
+        
+        if (error) throw error;
+        
+        setResources(data || []);
+        */
+      } catch (error) {
+        console.error('Error fetching resources:', error);
+        toast({
+          title: "Error",
+          description: "Could not load resources. Please try again.",
+          variant: "destructive",
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchResources();
+  }, [type, toast]);
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    // Filter resources by search query
+    // This would be handled by the database in a real implementation
+    console.log("Searching for:", searchQuery);
+  };
+
+  const handleCategoryFilter = (category: string) => {
+    if (activeCategory === category) {
+      setActiveCategory(null);
+    } else {
+      setActiveCategory(category);
+    }
+  };
+
+  const filteredResources = activeCategory
+    ? resources.filter(resource => resource.category === activeCategory)
+    : resources;
+
+  const popularResources = resources.filter((_, index) => index < 3);
+
+  const handleGoToUpload = () => {
+    if (!session) {
+      toast({
+        title: "Authentication required",
+        description: "Please sign in to upload resources",
+      });
+      navigate('/auth');
+    } else {
+      navigate('/resources/upload');
+    }
+  };
+
   return (
     <Layout>
       <div className="container py-8 md:py-12">
@@ -102,25 +212,66 @@ const ResourceHub = () => {
             <h1 className="text-3xl md:text-4xl font-bold mb-2">Resource Hub</h1>
             <p className="text-muted-foreground">Educational materials on civic rights, governance, and public participation</p>
           </div>
+          <div className="mt-4 md:mt-0 flex gap-2">
+            <Button 
+              onClick={handleGoToUpload}
+              className="bg-kenya-green hover:bg-kenya-green/90"
+            >
+              <Upload className="mr-2 h-4 w-4" />
+              Submit Resource
+            </Button>
+            {session && (
+              <Button variant="outline" asChild>
+                <Link to="/resources/pending">
+                  My Submissions
+                </Link>
+              </Button>
+            )}
+          </div>
+        </div>
+        
+        <div className="mb-8">
+          <ResourceTypeFilter />
         </div>
         
         <div className="flex flex-col md:flex-row gap-6 mb-8">
-          <div className="relative flex-1">
+          <form onSubmit={handleSearch} className="relative flex-1">
             <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-            <Input placeholder="Search resources..." className="pl-9" />
-          </div>
+            <Input 
+              placeholder="Search resources..." 
+              className="pl-9" 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </form>
           
           <div className="flex gap-2 flex-wrap">
-            <Button variant="outline" size="sm">
+            <Button 
+              variant={activeCategory === "Constitution" ? "default" : "outline"} 
+              size="sm"
+              onClick={() => handleCategoryFilter("Constitution")}
+            >
               Constitution
             </Button>
-            <Button variant="outline" size="sm">
+            <Button 
+              variant={activeCategory === "Rights" ? "default" : "outline"} 
+              size="sm"
+              onClick={() => handleCategoryFilter("Rights")}
+            >
               Rights
             </Button>
-            <Button variant="outline" size="sm">
+            <Button 
+              variant={activeCategory === "Governance" ? "default" : "outline"} 
+              size="sm"
+              onClick={() => handleCategoryFilter("Governance")}
+            >
               Governance
             </Button>
-            <Button variant="outline" size="sm">
+            <Button 
+              variant={activeCategory === "Participation" ? "default" : "outline"} 
+              size="sm"
+              onClick={() => handleCategoryFilter("Participation")}
+            >
               Participation
             </Button>
           </div>
@@ -136,82 +287,126 @@ const ResourceHub = () => {
           </TabsList>
           
           <TabsContent value="all" className="mt-0">
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {resources.map((resource) => (
-                <Card key={resource.id} className="flex flex-col h-full group">
-                  <CardHeader className="bg-muted/50 py-6 text-center">
-                    <div className="mx-auto bg-white w-16 h-16 rounded-full flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform">
-                      {resource.icon}
+            {loading ? (
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {[1, 2, 3, 4, 5, 6].map((n) => (
+                  <div key={n} className="animate-pulse">
+                    <div className="h-40 bg-muted rounded-t-lg"></div>
+                    <div className="p-4 space-y-2">
+                      <div className="h-4 bg-muted rounded w-1/4"></div>
+                      <div className="h-6 bg-muted rounded w-3/4"></div>
+                      <div className="h-4 bg-muted rounded w-full"></div>
+                      <div className="h-4 bg-muted rounded w-2/3"></div>
                     </div>
-                  </CardHeader>
-                  <CardContent className="pt-6 flex-grow">
-                    <div className="flex justify-between items-start mb-3">
-                      <Badge>{resource.type}</Badge>
-                      {resource.popular && (
-                        <Badge variant="secondary" className="bg-kenya-red/80 hover:bg-kenya-red text-white">
-                          Popular
-                        </Badge>
-                      )}
-                    </div>
-                    <h3 className="font-semibold text-lg mb-2">{resource.title}</h3>
-                    <p className="text-muted-foreground text-sm">{resource.description}</p>
-                    <Badge variant="outline" className="mt-3">
-                      {resource.category}
-                    </Badge>
-                  </CardContent>
-                  <CardFooter className="flex justify-between items-center border-t pt-4">
-                    <Button variant="outline" size="sm" className="text-xs" asChild>
-                      <Link to={`/resources/${resource.id}`}>
-                        View details
-                      </Link>
-                    </Button>
-                    {resource.downloadable && (
-                      <Button variant="ghost" size="icon" className="h-8 w-8">
-                        <Download className="h-4 w-4" />
-                        <span className="sr-only">Download {resource.title}</span>
-                      </Button>
-                    )}
-                  </CardFooter>
-                </Card>
-              ))}
-            </div>
+                  </div>
+                ))}
+              </div>
+            ) : filteredResources.length === 0 ? (
+              <div className="text-center py-12">
+                <BookOpen className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                <h2 className="text-xl font-semibold mb-2">No Resources Found</h2>
+                <p className="text-muted-foreground mb-6">
+                  {type 
+                    ? `No ${type} resources are available currently.` 
+                    : "No resources match your search criteria."}
+                </p>
+                <Button asChild>
+                  <Link to="/resources">View All Resources</Link>
+                </Button>
+              </div>
+            ) : (
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {filteredResources.map((resource) => (
+                  <ResourceCard
+                    key={resource.id}
+                    id={resource.id}
+                    title={resource.title}
+                    description={resource.description}
+                    type={resource.type}
+                    category={resource.category}
+                    downloadable={resource.is_downloadable || false}
+                  />
+                ))}
+              </div>
+            )}
             
-            <div className="flex justify-center mt-10">
-              <Button variant="outline" className="flex items-center gap-2">
-                Load More Resources
-                <ArrowDown className="h-4 w-4" />
-              </Button>
-            </div>
+            {filteredResources.length > 0 && (
+              <div className="flex justify-center mt-10">
+                <Button variant="outline" className="flex items-center gap-2">
+                  Load More Resources
+                  <ArrowDown className="h-4 w-4" />
+                </Button>
+              </div>
+            )}
           </TabsContent>
           
           <TabsContent value="documents">
-            <div className="bg-muted rounded-md p-8 text-center">
-              <BookOpen className="h-12 w-12 mx-auto text-muted-foreground mb-3" />
-              <h3 className="font-medium">Documents Category</h3>
-              <p className="text-sm text-muted-foreground mt-1">Filter applied to show only document resources.</p>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {filteredResources
+                .filter(resource => resource.type === "PDF")
+                .map((resource) => (
+                  <ResourceCard
+                    key={resource.id}
+                    id={resource.id}
+                    title={resource.title}
+                    description={resource.description}
+                    type={resource.type}
+                    category={resource.category}
+                    downloadable={resource.is_downloadable || false}
+                  />
+                ))}
             </div>
           </TabsContent>
           
           <TabsContent value="videos">
-            <div className="bg-muted rounded-md p-8 text-center">
-              <Video className="h-12 w-12 mx-auto text-muted-foreground mb-3" />
-              <h3 className="font-medium">Videos Category</h3>
-              <p className="text-sm text-muted-foreground mt-1">Filter applied to show only video resources.</p>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {filteredResources
+                .filter(resource => resource.type === "Video")
+                .map((resource) => (
+                  <ResourceCard
+                    key={resource.id}
+                    id={resource.id}
+                    title={resource.title}
+                    description={resource.description}
+                    type={resource.type}
+                    category={resource.category}
+                    downloadable={resource.is_downloadable || false}
+                  />
+                ))}
             </div>
           </TabsContent>
           
           <TabsContent value="infographics">
-            <div className="bg-muted rounded-md p-8 text-center">
-              <Image className="h-12 w-12 mx-auto text-muted-foreground mb-3" />
-              <h3 className="font-medium">Infographics Category</h3>
-              <p className="text-sm text-muted-foreground mt-1">Filter applied to show only infographic resources.</p>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {filteredResources
+                .filter(resource => resource.type === "Infographic")
+                .map((resource) => (
+                  <ResourceCard
+                    key={resource.id}
+                    id={resource.id}
+                    title={resource.title}
+                    description={resource.description}
+                    type={resource.type}
+                    category={resource.category}
+                    downloadable={resource.is_downloadable || false}
+                  />
+                ))}
             </div>
           </TabsContent>
           
           <TabsContent value="popular">
-            <div className="bg-muted rounded-md p-8 text-center">
-              <h3 className="font-medium">Popular Resources</h3>
-              <p className="text-sm text-muted-foreground mt-1">Filter applied to show only popular and trending resources.</p>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {popularResources.map((resource) => (
+                <ResourceCard
+                  key={resource.id}
+                  id={resource.id}
+                  title={resource.title}
+                  description={resource.description}
+                  type={resource.type}
+                  category="Popular"
+                  downloadable={resource.is_downloadable || false}
+                />
+              ))}
             </div>
           </TabsContent>
         </Tabs>
