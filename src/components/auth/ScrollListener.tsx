@@ -1,8 +1,9 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/App';
 import AuthModal from './AuthModal';
 import { motion, AnimatePresence } from 'framer-motion';
+import { toast } from '@/components/ui/use-toast'; // Ensure this matches your toast import
 
 interface ScrollListenerProps {
   children: React.ReactNode;
@@ -12,15 +13,16 @@ const ScrollListener = ({ children }: ScrollListenerProps) => {
   const [showAuth, setShowAuth] = useState(false);
   const [isBlurred, setIsBlurred] = useState(false);
   const { session, loading } = useAuth();
+  const hasTriggeredRef = useRef(false); // Ensures modal shows only once per session
   
   useEffect(() => {
     if (loading) return;
     
     // If user is not logged in, set up scroll listener
-    if (!session) {
+    if (!session && !hasTriggeredRef.current) {
       const handleScroll = () => {
-        // Show auth modal after scrolling down 150px
         if (window.scrollY > 150 && !showAuth) {
+          hasTriggeredRef.current = true;
           setIsBlurred(true);
           setTimeout(() => setShowAuth(true), 300); // Delay modal appearance for blur effect
         }
@@ -40,6 +42,14 @@ const ScrollListener = ({ children }: ScrollListenerProps) => {
     if (!open && !session) {
       // Small delay before removing blur when closing modal
       setTimeout(() => setIsBlurred(false), 300);
+
+      // Toast reminder to sign in
+      toast({
+        title: "Just A Reminder",
+        description: "Don't forget to sign in & enjoy an unlimited experience!",
+        duration: 5000,
+        variant: "default",
+      });
     }
   };
 
