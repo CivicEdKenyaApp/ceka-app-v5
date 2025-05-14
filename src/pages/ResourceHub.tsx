@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import Layout from '@/components/layout/Layout';
@@ -427,18 +426,19 @@ const ResourceHub = () => {
         </div>
         
         <div className="w-full overflow-x-auto pb-2">
-          <Tabs defaultValue="browse" className="mb-8 w-full">
-            <TabsList className="w-full sm:w-auto overflow-x-auto whitespace-nowrap">
+          <Tabs defaultValue="browse" className="mb-8">
+            <TabsList className="w-full sm:w-auto">
               <TabsTrigger value="browse" className="px-3 sm:px-4">Browse Resources</TabsTrigger>
               <TabsTrigger value="providers" className="px-3 sm:px-4">Educational Providers</TabsTrigger>
               <TabsTrigger value="calendar" className="px-3 sm:px-4">Civic Calendar</TabsTrigger>
             </TabsList>
             
-            <TabsContent value="browse" className="space-y-6 w-full px-4">
+            <TabsContent value="browse" className="space-y-6">
               <div className="mb-6">
                 <ResourceTypeFilter />
               </div>
-              
+            
+            <div className="flex flex-col gap-6">
               {/* Advanced filtering options */}
               <div className="flex flex-col md:flex-row gap-4 p-4 bg-muted/30 rounded-lg">
                 <div className="flex-1 space-y-2">
