@@ -425,17 +425,18 @@ const ResourceHub = () => {
           </div>
         </div>
         
-        <Tabs defaultValue="browse" className="mb-8">
-          <TabsList>
-            <TabsTrigger value="browse">Browse Resources</TabsTrigger>
-            <TabsTrigger value="providers">Educational Providers</TabsTrigger>
-            <TabsTrigger value="calendar">Civic Calendar</TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="browse" className="space-y-6">
-            <div className="mb-6">
-              <ResourceTypeFilter />
-            </div>
+        <div className="w-full overflow-x-auto pb-2">
+          <Tabs defaultValue="browse" className="mb-8">
+            <TabsList className="w-full sm:w-auto">
+              <TabsTrigger value="browse" className="px-3 sm:px-4">Browse Resources</TabsTrigger>
+              <TabsTrigger value="providers" className="px-3 sm:px-4">Educational Providers</TabsTrigger>
+              <TabsTrigger value="calendar" className="px-3 sm:px-4">Civic Calendar</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="browse" className="space-y-6">
+              <div className="mb-6">
+                <ResourceTypeFilter />
+              </div>
             
             <div className="flex flex-col gap-6">
               {/* Advanced filtering options */}
